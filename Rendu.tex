@@ -1,0 +1,60 @@
+% !TEX encoding = UTF-8 Unicode
+
+
+\documentclass[10pt]{article}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage[utf8]{inputenc}  
+\usepackage[T1]{fontenc}      
+\usepackage[francais]{babel}  
+\usepackage[utf8x]{inputenc}
+
+
+\title{Rendu Cryptographie}
+\author{Guilhem Marion}
+\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+
+
+\section*{Exercice 1}
+
+\subsection*{Question 1}
+
+Si deux individus ont la même $N$ ainsi que deux clefs publiques/privées differentes c'est qu'ils connaissent $\phi(N)$\footnote{Le nombre de nombres entiers en 1 et N.}. Or, 
+
+\begin{center}
+
+$e_1d_1 = 1  (mod \phi(N)$)
+
+\end{center}
+
+et 
+
+\begin{center}
+
+$e_2d_2 = 1   (mod \phi(N)$)
+
+\end{center}
+
+Et $e_1$ et $e_2$ sont publics et $\phi(N)$ et connu des deux individus, donc on peut retrouver $d_1$ (respectivement $d_1$) en calculant l'inverse de la clef publique de l'autre individu modulo $\phi(N)$.
+
+
+\end{document}  
+
+
+
+
+
+
+
+
+
+
+
