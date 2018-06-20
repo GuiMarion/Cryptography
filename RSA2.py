@@ -6,52 +6,39 @@ import time
 
 class RSA:
 
-	def __init__(self):
+	def KeyGen(self):
 
-		self.dp = None
-		self.dq = None
-		self.qinv = None
-		self.p = None
-		self.q = None
-
-
-	def KeyGen(self, lambd):
-		lambd = int(lambd/2)
-		rangePrime = [2**(lambd-1), 2**(lambd)-1]
-		#print(rangePrime)
-		p = randprime(rangePrime[0], rangePrime[1])
-		q = randprime(rangePrime[0], rangePrime[1])
+		p = randprime(2**(500-1), 2**(500)-1)
+		q = randprime(2**(4500-1), 2**(4500)-1)
 
 		while (not isprime(p)):
-			p = randprime(rangePrime[0], rangePrime[1])
+			p = randprime(2**(500-1), 2**(500)-1)
 
 		while (not isprime(q)):
-			q = randprime(rangePrime[0], rangePrime[1])
+			q = randprime(2**(4500-1), 2**(4500)-1)
 
 
 		Phi = (p-1)*(q-1)
 
 		N = p*q
 
-		e = randint(1, Phi)
+		e = randint(20, 100)
 
 		# The primality with p-1 should be unecessery but for some reasons 
 		# if we don't check it the computation of the modinv of e, p-1 fails
-		while (Euclide(e, Phi)[0] != 1 or Euclide(e, p-1)[0] != 1 or Euclide(e, q-1)[0] != 1):
-			e = randint(1, Phi)
+		while (Euclide(e, Phi)[0] != 1 or Euclide(e, p-1)[0] != 1):
+			e = randint(20, 100)
 
 		d = Euclide(e, Phi)[1]
 		while d < 0:
 			d += Phi
 
-		self.dp = self.ModInv(e, p-1)
-		self.dq = self.ModInv(e, q-1)
-		self.qinv = self.ModInv(q, p)
-		self.p = p 
-		self.q = q
+		dp = Euclide(d, p-1)[1]
+		while d < 0:
+			dp += p-1
 
 		PublicKey = (e, N)
-		PrivateKey = (d, N)
+		PrivateKey = (d, N, dp, p)
 		return (PublicKey, PrivateKey)
 
 	def ExpBinMod(self, m,e,N):
@@ -72,14 +59,19 @@ class RSA:
 		(e, N) = PublicKey
 		#c = Pow(M, e) % N
 
+		if M > (2**300)-1:
+			raise ValueError("Message too big to be coded with this algorithm.")
+
 		return self.ExpBinMod(M, e, N)
 
 
 	def Decrypt(self, C, PrivateKey):
 
-		(d, N) = PrivateKey
+		(d, N, dp, p) = PrivateKey
 
-		return self.ExpBinMod(C, d, N)
+		M = self.ExpBinMod(C, dp, p)
+
+		return M
 
 	def ModInv(self,a,m):
 
@@ -96,40 +88,10 @@ class RSA:
 
 
 
-	def CRT(self,a,m):
-		# a and m vector of size r
-		# x = ai mod mi for all i
-
-		M = 1
-
-		for elem in m:
-			M = M*elem
-
-		r = len(a)
-		if len(a) != len(m):
-			raise ValueError("Invalid input, a and m shoud have the same size.")
-		result = 0
-		for i in range(r):
-			Mi = int(M / m[i])
-			yi= self.ModInv(Mi,m[i])
-			result = result + a[i]*Mi*yi % M
-		return result % M
-
-	def Decrypt_CRT(self, C):
-
-		m1 = self.ExpBinMod(C, self.dp, self.p)
-		m2 = self.ExpBinMod(C, self.dq, self.q)
-		h = (self.qinv * (m1 - m2)) % self.p 
-		m = m2 + h * self.q
-
-		return m
-
-
-
-def Test(lambd, M, string = False):
+def Test(M, string = False):
 
 	R = RSA()
-	(PublicKey, PrivateKey) = R.KeyGen(lambd)
+	(PublicKey, PrivateKey) = R.KeyGen()
 
 	print("PublicKey:", PublicKey,"PrivateKey:", PrivateKey)
 
@@ -140,21 +102,12 @@ def Test(lambd, M, string = False):
 	Decrypt = R.Decrypt(Crypt, PrivateKey)
 	print("Naive : --- %s seconds ---" % (time.time() - start_time))
 
-	start_time = time.time()
-	Decrypt2 = R.Decrypt_CRT(Crypt)
-	print("CRT : --- %s seconds ---" % (time.time() - start_time))
-
 	if string == False:
 		print("Decrypted message:", Decrypt)
 	else : 
 		print("Decrypted message:", IntToString(Decrypt))
 
-	if string == False:
-		print("Decrypted message with CRT:", Decrypt2)
-	else : 
-		print("Decrypted message with CRT:", IntToString(Decrypt2))
-
-	return Decrypt2
+	return Decrypt
 
 
 	#print(R.CRT([3,4,5],[17,11,6]))
@@ -188,16 +141,16 @@ def LookingForBugs(epochs):
 
 if __name__ == "__main__":
 
-	LookingForBugs(1000)
+	#LookingForBugs(1000)
 
-	if len(sys.argv) == 3:
+	if len(sys.argv) == 2:
 		try :
-			Test(int(sys.argv[1]), int(sys.argv[2]))
+			Test(int(sys.argv[1]))
 
 		except ValueError:
-			Test(int(sys.argv[1]), int(StringToInt(sys.argv[2])), string = True)
+			Test(int(sys.argv[1]), string = True)
 	else:
-		print("Usage: Python3 RSA.py <lambda> <Message to encrypt>")
+		print("Usage: Python3 RSA2.py <Message to encrypt>")
 
 
 

@@ -29,7 +29,7 @@ def Euclide(a, b):
 
 	while b != 0:
 		(a_pred, u0_pred, v0_pred, b_pred, u1_pred, v1_pred) = (a, u0, v0, b, u1, v1)
-		q = int(a/b)
+		q = int(a // b)
 		a = b_pred
 		u0 = u1_pred
 		v0 = v1_pred
